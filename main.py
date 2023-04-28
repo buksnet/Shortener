@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired, URL
 import hashlib
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = hashlib.sha256(b"somepasswordlol")
+app.config['SECRET_KEY'] = 'SECRET_KEY'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///urls.db'
 
 db = SQLAlchemy(app)
@@ -32,11 +32,11 @@ class URLForm(FlaskForm):
 
 def get_short(original_url):
     h = hashlib.sha256(original_url.encode('utf-8'))
-    return str(h.hexdigest())[:10]
+    return h.hexdigest()[:10]
 
 
 # TODO: Home page
-@app.route('/', methods=["POST", "GET"])
+@app.route('/', methods=["GET", "POST"])
 def index():
     form = URLForm()
     if form.validate_on_submit():
@@ -46,7 +46,7 @@ def index():
         db.session.add(url)
         db.session.commit()
         return redirect(url_for('urls'))
-    return render_template('index.html')
+    return render_template('index.html', form=form)
 
 
 # TODO: Urls page
